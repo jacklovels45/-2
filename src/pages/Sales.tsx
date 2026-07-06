@@ -1,20 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Search, Eye, Receipt, Printer } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge, Empty } from "@/components/ui/Badge";
 import { formatMoney, formatDate, relativeTime, isSameDay, daysAgo } from "@/utils/format";
+import { I18N } from "@/utils/i18n";
 import type { PaymentMethod } from "@/types";
 
-const PAY_LABEL: Record<PaymentMethod, string> = {
-  cash: "现金",
-  wechat: "微信",
-  alipay: "支付宝",
-  card: "银行卡",
-};
-
-export default function Sales() {
+const Sales = memo(function Sales() {
   const sales = useStore((s) => s.sales);
 
   const [keyword, setKeyword] = useState("");
@@ -132,7 +126,7 @@ export default function Sales() {
                     <td className="px-4 py-3 text-right tabular text-signal-orange">-{formatMoney(s.discount, 0)}</td>
                     <td className="px-4 py-3 text-right tabular font-semibold text-forest-700">¥{formatMoney(s.paid, 0)}</td>
                     <td className="px-4 py-3 text-center">
-                      <Badge variant="info">{PAY_LABEL[s.paymentMethod]}</Badge>
+                      <Badge variant="info">{I18N.payment[s.paymentMethod]}</Badge>
                     </td>
                     <td className="px-4 py-3 text-xs text-ink-500" title={formatDate(s.createdAt, true)}>
                       {relativeTime(s.createdAt)}
@@ -159,4 +153,6 @@ export default function Sales() {
       </div>
     </div>
   );
-}
+});
+
+export default Sales;

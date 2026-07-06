@@ -1,19 +1,14 @@
+import { memo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Printer, Check } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { formatMoney, formatDate } from "@/utils/format";
+import { I18N, getEmoji } from "@/utils/i18n";
 import type { PaymentMethod } from "@/types";
 
-const PAY_LABEL: Record<PaymentMethod, string> = {
-  cash: "现金",
-  wechat: "微信",
-  alipay: "支付宝",
-  card: "银行卡",
-};
-
-export default function SaleDetail() {
+const SaleDetail = memo(function SaleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const sales = useStore((s) => s.sales);
@@ -91,7 +86,7 @@ export default function SaleDetail() {
                       <tr key={it.productId}>
                         <td className="py-1.5 text-ink-800">
                           <div className="flex items-center gap-1.5">
-                            <span>{products.find((p) => p.id === it.productId)?.emoji || "📦"}</span>
+                            <span>{getEmoji(products.find((p) => p.id === it.productId)?.emoji)}</span>
                             <span className="truncate">{it.name}</span>
                           </div>
                         </td>
@@ -119,7 +114,7 @@ export default function SaleDetail() {
                   </div>
                   <div className="flex justify-between text-ink-500 text-[11px] pt-1">
                     <span>支付方式</span>
-                    <span>{PAY_LABEL[sale.paymentMethod]}</span>
+                    <span>{I18N.payment[sale.paymentMethod]}</span>
                   </div>
                 </div>
                 <div className="text-center pt-3 mt-2 border-t border-dashed border-ink-200 text-[11px] text-ink-400">
@@ -149,7 +144,7 @@ export default function SaleDetail() {
               </div>
               <div className="flex justify-between">
                 <dt className="text-ink-500">支付方式</dt>
-                <dd><Badge variant="info">{PAY_LABEL[sale.paymentMethod]}</Badge></dd>
+                <dd><Badge variant="info">{I18N.payment[sale.paymentMethod]}</Badge></dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-ink-500">销售时间</dt>
@@ -185,4 +180,6 @@ export default function SaleDetail() {
       </div>
     </div>
   );
-}
+});
+
+export default SaleDetail;

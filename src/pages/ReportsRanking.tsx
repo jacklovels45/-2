@@ -1,14 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge, Empty } from "@/components/ui/Badge";
 import { BarChart } from "@/components/charts/Charts";
 import { formatMoney, formatMoneyCompact, daysAgo } from "@/utils/format";
+import { getEmoji } from "@/utils/i18n";
 import { Trophy, TrendingUp, TrendingDown, Coins } from "lucide-react";
 
 type RankType = "qty" | "revenue" | "profit" | "slow";
 
-export default function ReportsRanking() {
+const ReportsRanking = memo(function ReportsRanking() {
   const sales = useStore((s) => s.sales);
   const products = useStore((s) => s.products);
   const [rankType, setRankType] = useState<RankType>("qty");
@@ -140,7 +141,7 @@ export default function ReportsRanking() {
               {slowItems.map((p) => (
                 <div key={p.id} className="flex items-center gap-3 p-3 rounded-lg bg-cream-50 border border-ink-100">
                   <div className="w-10 h-10 rounded-md bg-white flex items-center justify-center text-xl">
-                    {p.emoji}
+                    {getEmoji(p.emoji)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-ink-800 truncate">{p.name}</p>
@@ -194,7 +195,7 @@ export default function ReportsRanking() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{p.emoji}</span>
+                            <span className="text-lg">{getEmoji(p.emoji)}</span>
                             <span className="font-medium text-ink-800">{p.name}</span>
                           </div>
                         </td>
@@ -225,4 +226,6 @@ export default function ReportsRanking() {
       )}
     </div>
   );
-}
+});
+
+export default ReportsRanking;

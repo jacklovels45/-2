@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LineChart, BarChart, DonutChart } from "@/components/charts/Charts";
 import { Badge } from "@/components/ui/Badge";
 import { formatMoney, formatMoneyCompact, isSameDay, daysAgo } from "@/utils/format";
+import { getEmoji } from "@/utils/i18n";
 import { CATEGORY_COLORS } from "@/hooks/useDashboardStats";
 
-export default function ReportsProfit() {
+const ReportsProfit = memo(function ReportsProfit() {
   const sales = useStore((s) => s.sales);
   const products = useStore((s) => s.products);
   const categories = useStore((s) => s.categories);
@@ -168,7 +169,7 @@ export default function ReportsProfit() {
                 <span className={`w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center shrink-0 ${
                   i < 3 ? "bg-amber-400 text-forest-900" : "bg-cream-100 text-ink-500"
                 }`}>{i + 1}</span>
-                <span>{p.emoji}</span>
+                <span>{getEmoji(p.emoji)}</span>
                 <span className="flex-1 truncate text-ink-700">{p.name}</span>
                 <span className="tabular text-amber-600 font-semibold">¥{formatMoney(p.profit, 0)}</span>
               </div>
@@ -198,7 +199,7 @@ export default function ReportsProfit() {
                 <tr key={p.id} className="table-row-hover">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">{p.emoji}</span>
+                      <span className="text-lg">{getEmoji(p.emoji)}</span>
                       <span className="font-medium text-ink-800">{p.name}</span>
                     </div>
                   </td>
@@ -218,7 +219,9 @@ export default function ReportsProfit() {
       </div>
     </div>
   );
-}
+});
+
+export default ReportsProfit;
 
 function ProfitStat({ label, value, color }: { label: string; value: string; color: "forest" | "amber" | "rose" }) {
   const colorMap = {

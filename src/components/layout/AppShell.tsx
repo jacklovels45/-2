@@ -1,8 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, Search, Bell, RefreshCw, X } from "lucide-react";
 import { useStore } from "@/store";
 import { Sidebar } from "./Sidebar";
+import { I18N } from "@/utils/i18n";
+import { Modal } from "@/components/ui/Modal";
 
 interface HeaderProps {
   title: string;
@@ -58,10 +60,17 @@ function Header({ onOpenMobile }: { onOpenMobile: () => void }) {
   const products = useStore((s) => s.products);
   const [confirmingReseed, setConfirmingReseed] = useState(false);
 
-  // 路由 → 标题/面包屑
   const { title, breadcrumb } = pathMeta(location.pathname);
-
   const lowStockCount = products.filter((p) => p.stock <= p.safetyStock).length;
+
+  const handleReseed = useCallback(() => {
+    reseed();
+    setConfirmingReseed(false);
+  }, [reseed]);
+
+  const handleCancelReseed = useCallback(() => {
+    setConfirmingReseed(false);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 bg-cream-200/85 backdrop-blur-md border-b border-ink-100/60">
@@ -73,7 +82,6 @@ function Header({ onOpenMobile }: { onOpenMobile: () => void }) {
           <Menu size={20} />
         </button>
 
-        {/* 标题与面包屑 */}
         <div className="flex-1 min-w-0">
           <h2 className="display text-lg font-semibold text-forest-800 truncate">{title}</h2>
           {breadcrumb.length > 0 && (
@@ -92,21 +100,19 @@ function Header({ onOpenMobile }: { onOpenMobile: () => void }) {
           )}
         </div>
 
-        {/* 搜索（装饰） */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-ink-100 text-ink-400 text-sm w-56">
           <Search size={15} />
           <input
             className="bg-transparent outline-none flex-1 text-ink-700 placeholder:text-ink-300"
-            placeholder="搜索商品 / 单据…"
+            placeholder={I18N.search + "商品 / 单据…"}
           />
           <kbd className="text-[10px] px-1.5 py-0.5 rounded bg-cream-100 border border-ink-100 text-ink-400">⌘K</kbd>
         </div>
 
-        {/* 预警铃 */}
         <Link
           to="/inventory/warnings"
           className="relative p-2 rounded-lg text-ink-500 hover:bg-ink-100 hover:text-ink-700 transition-colors"
-          title="库存预警"
+          title={I18N.lowStock + "预警"}
         >
           <Bell size={18} />
           {lowStockCount > 0 && (
@@ -116,29 +122,35 @@ function Header({ onOpenMobile }: { onOpenMobile: () => void }) {
           )}
         </Link>
 
-        {/* 重置数据 */}
-        {confirmingReseed ? (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200">
-            <span className="text-xs text-rose-700">重置全部数据？</span>
-            <button
-              onClick={() => { reseed(); setConfirmingReseed(false); }}
-              className="text-xs px-2 py-0.5 rounded bg-rose-600 text-white font-medium hover:bg-rose-700"
-            >
-              确定
-            </button>
-            <button onClick={() => setConfirmingReseed(false)} className="text-rose-500">
-              <X size={14} />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => setConfirmingReseed(true)}
-            className="p-2 rounded-lg text-ink-500 hover:bg-ink-100 hover:text-ink-700 transition-colors"
-            title="重置演示数据"
-          >
-            <RefreshCw size={16} />
-          </button>
-        )}
+        <button
+          onClick={() => setConfirmingReseed(true)}
+          className="p-2 rounded-lg text-ink-500 hover:bg-ink-100 hover:text-ink-700 transition-colors"
+          title="重置演示数据"
+        >
+          <RefreshCw size={16} />
+        </button>
+
+        <Modal
+          open={confirmingReseed}
+          onClose={handleCancelReseed}
+          title={I18N.resetData}
+          size="sm"
+          footer={
+            <>
+              <button onClick={handleCancelReseed} className="btn-ghost">{I18N.cancel}</button>
+              <button
+                onClick={handleReseed}
+                className="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700"
+              >
+                {I18N.confirm}
+              </button>
+            </>
+          }
+        >
+          <p className="text-sm text-ink-700">
+            重置将清空所有数据并重新生成演示数据，当前未保存的操作将丢失。是否继续？
+          </p>
+        </Modal>
       </div>
     </header>
   );

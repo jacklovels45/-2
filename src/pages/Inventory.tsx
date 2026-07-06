@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import { Search, Boxes, AlertTriangle, ArrowDownUp, Plus, Minus } from "lucide-react";
 import { useStore } from "@/store";
@@ -6,8 +6,9 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge, Empty } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { formatMoney } from "@/utils/format";
+import { getEmoji } from "@/utils/i18n";
 
-export default function Inventory() {
+const Inventory = memo(function Inventory() {
   const products = useStore((s) => s.products);
   const categories = useStore((s) => s.categories);
   const adjustStock = useStore((s) => s.adjustStock);
@@ -35,21 +36,21 @@ export default function Inventory() {
   const lowCount = products.filter((p) => p.stock <= p.safetyStock && p.stock > 0).length;
   const outCount = products.filter((p) => p.stock === 0).length;
 
-  const categoryName = (id: string) => categories.find((c) => c.id === id)?.name || "未分类";
-  const categoryIcon = (id: string) => categories.find((c) => c.id === id)?.icon || "📦";
+  const categoryName = useCallback((id: string) => categories.find((c) => c.id === id)?.name || "未分类", [categories]);
+  const categoryIcon = useCallback((id: string) => getEmoji(categories.find((c) => c.id === id)?.icon), [categories]);
 
-  const openAdjust = (productId: string) => {
+  const openAdjust = useCallback((productId: string) => {
     setAdjustTarget(productId);
     setAdjustQty(0);
     setAdjustNote("");
-  };
+  }, []);
 
-  const handleAdjust = () => {
+  const handleAdjust = useCallback(() => {
     if (adjustTarget && adjustQty !== 0) {
       adjustStock(adjustTarget, adjustQty, adjustNote || "手工调整");
       setAdjustTarget(null);
     }
-  };
+  }, [adjustTarget, adjustQty, adjustNote, adjustStock]);
 
   return (
     <div className="animate-fade-up">
@@ -132,7 +133,7 @@ export default function Inventory() {
                     <tr key={p.id} className="table-row-hover">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <span className="text-lg">{p.emoji}</span>
+                          <span className="text-lg">{getEmoji(p.emoji)}</span>
                           <div>
                             <p className="font-medium text-ink-800">{p.name}</p>
                             <p className="text-[11px] text-ink-400">{p.spec}</p>
@@ -202,7 +203,7 @@ export default function Inventory() {
           return (
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-cream-50">
-                <span className="text-2xl">{p.emoji}</span>
+                <span className="text-2xl">{getEmoji(p.emoji)}</span>
                 <div>
                   <p className="font-medium text-ink-800">{p.name}</p>
                   <p className="text-xs text-ink-400">当前库存 <span className="tabular font-semibold">{p.stock}</span> {p.unit}</p>
@@ -252,7 +253,9 @@ export default function Inventory() {
       </Modal>
     </div>
   );
-}
+});
+
+export default Inventory;
 
 function OverviewCard({
   label,

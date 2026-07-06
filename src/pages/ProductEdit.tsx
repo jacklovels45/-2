@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Save, Barcode } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { formatMoney } from "@/utils/format";
+import { getEmoji } from "@/utils/i18n";
 
-export default function ProductEdit() {
+const ProductEdit = memo(function ProductEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
@@ -38,7 +39,7 @@ export default function ProductEdit() {
   const margin = form.salePrice > 0 ? ((form.salePrice - form.costPrice) / form.salePrice) * 100 : 0;
   const profit = form.salePrice - form.costPrice;
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (!form.name.trim()) {
       alert("请输入商品名称");
       return;
@@ -74,7 +75,7 @@ export default function ProductEdit() {
       });
     }
     navigate("/products");
-  };
+  }, [form, isEdit, existing, addProduct, updateProduct, navigate]);
 
   return (
     <div className="animate-fade-up max-w-3xl">
@@ -96,12 +97,12 @@ export default function ProductEdit() {
         {/* 商品图标 */}
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-xl2 bg-cream-100 flex items-center justify-center text-3xl">
-            {form.emoji}
+            {getEmoji(form.emoji)}
           </div>
           <div className="flex-1">
             <label className="text-xs text-ink-500 font-medium">商品图标 (emoji)</label>
             <input
-              value={form.emoji}
+              value={getEmoji(form.emoji)}
               onChange={(e) => set("emoji", e.target.value)}
               className="input-field mt-1"
               placeholder="输入 emoji 表情"
@@ -246,7 +247,9 @@ export default function ProductEdit() {
       </div>
     </div>
   );
-}
+});
+
+export default ProductEdit;
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (

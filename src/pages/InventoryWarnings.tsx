@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { AlertTriangle, ShoppingCart, Truck, TrendingDown } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge, Empty } from "@/components/ui/Badge";
 import { formatMoney } from "@/utils/format";
+import { getEmoji } from "@/utils/i18n";
 
-export default function InventoryWarnings() {
+const InventoryWarnings = memo(function InventoryWarnings() {
   const products = useStore((s) => s.products);
   const categories = useStore((s) => s.categories);
   const sales = useStore((s) => s.sales);
@@ -132,7 +133,7 @@ export default function InventoryWarnings() {
               return (
                 <div key={p.id} className="px-5 py-3 flex items-center gap-3 table-row-hover">
                   <div className="w-10 h-10 rounded-md bg-cream-100 flex items-center justify-center text-xl shrink-0">
-                    {p.emoji}
+                    {getEmoji(p.emoji)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -169,4 +170,6 @@ export default function InventoryWarnings() {
       </div>
     </div>
   );
-}
+});
+
+export default InventoryWarnings;

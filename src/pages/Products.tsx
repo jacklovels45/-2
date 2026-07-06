@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search, Filter, Download, Package, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { useStore } from "@/store";
@@ -6,8 +6,9 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge, Empty } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { formatMoney } from "@/utils/format";
+import { getEmoji } from "@/utils/i18n";
 
-export default function Products() {
+const Products = memo(function Products() {
   const products = useStore((s) => s.products);
   const categories = useStore((s) => s.categories);
   const deleteProduct = useStore((s) => s.deleteProduct);
@@ -28,8 +29,13 @@ export default function Products() {
     });
   }, [products, keyword, categoryId, statusFilter]);
 
-  const categoryName = (id: string) => categories.find((c) => c.id === id)?.name || "未分类";
-  const categoryIcon = (id: string) => categories.find((c) => c.id === id)?.icon || "📦";
+  const categoryName = useCallback((id: string) => categories.find((c) => c.id === id)?.name || "未分类", [categories]);
+  const categoryIcon = useCallback((id: string) => getEmoji(categories.find((c) => c.id === id)?.icon), [categories]);
+
+  const handleDelete = useCallback(() => {
+    if (deleteTarget) deleteProduct(deleteTarget);
+    setDeleteTarget(null);
+  }, [deleteTarget, deleteProduct]);
 
   const totalValue = filtered.reduce((s, p) => s + p.stock * p.costPrice, 0);
   const lowCount = filtered.filter((p) => p.stock <= p.safetyStock).length;
@@ -128,7 +134,7 @@ export default function Products() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-md bg-cream-100 flex items-center justify-center text-xl shrink-0">
-                            {p.emoji}
+                            {getEmoji(p.emoji)}
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-ink-800 truncate">{p.name}</p>
@@ -197,10 +203,7 @@ export default function Products() {
           <>
             <button onClick={() => setDeleteTarget(null)} className="btn-ghost">取消</button>
             <button
-              onClick={() => {
-                if (deleteTarget) deleteProduct(deleteTarget);
-                setDeleteTarget(null);
-              }}
+              onClick={handleDelete}
               className="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700"
             >
               确认删除
@@ -212,4 +215,6 @@ export default function Products() {
       </Modal>
     </div>
   );
-}
+});
+
+export default Products;

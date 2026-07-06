@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Plus, Phone, MapPin, Star, Pencil, Trash2, Truck } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -16,7 +16,7 @@ const EMPTY_FORM = {
   rating: 4,
 };
 
-export default function Suppliers() {
+const Suppliers = memo(function Suppliers() {
   const suppliers = useStore((s) => s.suppliers);
   const purchases = useStore((s) => s.purchases);
   const addSupplier = useStore((s) => s.addSupplier);
@@ -28,13 +28,13 @@ export default function Suppliers() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  const openCreate = () => {
+  const openCreate = useCallback(() => {
     setEditing(null);
     setForm(EMPTY_FORM);
     setFormOpen(true);
-  };
+  }, []);
 
-  const openEdit = (s: Supplier) => {
+  const openEdit = useCallback((s: Supplier) => {
     setEditing(s);
     setForm({
       name: s.name,
@@ -45,9 +45,9 @@ export default function Suppliers() {
       rating: s.rating,
     });
     setFormOpen(true);
-  };
+  }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     if (!form.name.trim()) {
       alert("请输入供应商名称");
       return;
@@ -58,7 +58,12 @@ export default function Suppliers() {
       addSupplier({ ...form, status: "active" });
     }
     setFormOpen(false);
-  };
+  }, [form, editing, addSupplier, updateSupplier]);
+
+  const handleDelete = useCallback(() => {
+    if (deleteTarget) deleteSupplier(deleteTarget);
+    setDeleteTarget(null);
+  }, [deleteTarget, deleteSupplier]);
 
   const supplierStats = (id: string) => {
     const list = purchases.filter((p) => p.supplierId === id);
@@ -251,10 +256,7 @@ export default function Suppliers() {
           <>
             <button onClick={() => setDeleteTarget(null)} className="btn-ghost">取消</button>
             <button
-              onClick={() => {
-                if (deleteTarget) deleteSupplier(deleteTarget);
-                setDeleteTarget(null);
-              }}
+              onClick={handleDelete}
               className="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700"
             >
               确认删除
@@ -266,4 +268,6 @@ export default function Suppliers() {
       </Modal>
     </div>
   );
-}
+});
+
+export default Suppliers;

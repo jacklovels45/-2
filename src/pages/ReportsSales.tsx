@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { LineChart, BarChart } from "@/components/charts/Charts";
 import { formatMoney, formatMoneyCompact, isSameDay, daysAgo } from "@/utils/format";
 import { CATEGORY_COLORS } from "@/hooks/useDashboardStats";
 
-export default function ReportsSales() {
+const ReportsSales = memo(function ReportsSales() {
   const sales = useStore((s) => s.sales);
   const categories = useStore((s) => s.categories);
   const [range, setRange] = useState<7 | 14 | 30>(14);
@@ -116,7 +116,9 @@ export default function ReportsSales() {
       </div>
     </div>
   );
-}
+});
+
+export default ReportsSales;
 
 function Stat({ label, value, color }: { label: string; value: string; color: "forest" | "amber" | "teal" | "rose" }) {
   const colorMap = {

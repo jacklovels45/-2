@@ -1,28 +1,29 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, memo } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search, ShoppingCart, Eye } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge, Empty } from "@/components/ui/Badge";
 import { formatMoney, formatDate, relativeTime } from "@/utils/format";
+import { I18N } from "@/utils/i18n";
 import type { OrderStatus } from "@/types";
 
 const STATUS_MAP: Record<OrderStatus, { label: string; variant: "neutral" | "warning" | "info" | "success" | "danger" }> = {
-  draft: { label: "草稿", variant: "neutral" },
-  pending: { label: "待审核", variant: "warning" },
-  approved: { label: "已审核", variant: "info" },
-  received: { label: "已入库", variant: "success" },
-  cancelled: { label: "已取消", variant: "danger" },
+  draft: { label: I18N.status.draft, variant: "neutral" },
+  pending: { label: I18N.status.pending, variant: "warning" },
+  approved: { label: I18N.status.approved, variant: "info" },
+  received: { label: I18N.status.received, variant: "success" },
+  cancelled: { label: I18N.status.cancelled, variant: "danger" },
 };
 
-export default function Purchases() {
+const Purchases = memo(function Purchases() {
   const purchases = useStore((s) => s.purchases);
   const suppliers = useStore((s) => s.suppliers);
 
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | OrderStatus>("all");
 
-  const supplierName = (id: string) => suppliers.find((s) => s.id === id)?.name || "未知供应商";
+  const supplierName = useCallback((id: string) => suppliers.find((s) => s.id === id)?.name || "未知供应商", [suppliers]);
 
   const filtered = useMemo(() => {
     return purchases.filter((p) => {
@@ -138,4 +139,6 @@ export default function Purchases() {
       </div>
     </div>
   );
-}
+});
+
+export default Purchases;

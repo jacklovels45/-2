@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Link } from "react-router-dom";
 import {
   TrendingUp,
@@ -21,14 +21,15 @@ import { useDashboardStats, CATEGORY_COLORS } from "@/hooks/useDashboardStats";
 import { LineChart, DonutChart, Sparkline } from "@/components/charts/Charts";
 import { Badge, StatPill } from "@/components/ui/Badge";
 import { formatMoney, formatMoneyCompact, relativeTime } from "@/utils/format";
+import { I18N, getEmoji } from "@/utils/i18n";
 
-export default function Dashboard() {
+const Dashboard = memo(function Dashboard() {
   const stats = useDashboardStats();
   const [trendRange, setTrendRange] = useState<7 | 30>(7);
 
   const today = new Date();
   const dateStr = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
-  const weekDay = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"][today.getDay()];
+  const weekDay = I18N.weekDays[today.getDay()];
 
   return (
     <div className="space-y-5 animate-fade-up">
@@ -190,7 +191,7 @@ export default function Dashboard() {
                   className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-cream-100 transition-colors group"
                 >
                   <div className="w-9 h-9 rounded-md bg-cream-100 flex items-center justify-center text-lg shrink-0">
-                    {p.emoji}
+                    {getEmoji(p.emoji)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-ink-800 truncate">{p.name}</p>
@@ -227,7 +228,7 @@ export default function Dashboard() {
                 }`}>
                   {i + 1}
                 </span>
-                <span className="text-base">{p.emoji}</span>
+                <span className="text-base">{getEmoji(p.emoji)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-ink-800 truncate">{p.name}</p>
                 </div>
@@ -263,7 +264,7 @@ export default function Dashboard() {
                 }`}>
                   {i + 1}
                 </span>
-                <span className="text-base">{p.emoji}</span>
+                <span className="text-base">{getEmoji(p.emoji)}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-ink-800 truncate">{p.name}</p>
                 </div>
@@ -301,7 +302,7 @@ export default function Dashboard() {
                 to={`/products/${p.id}`}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs transition-colors"
               >
-                <span>{p.emoji}</span> {p.name}
+                <span>{getEmoji(p.emoji)}</span> {p.name}
               </Link>
             ))}
           </div>
@@ -309,7 +310,7 @@ export default function Dashboard() {
       )}
     </div>
   );
-}
+});
 
 interface KpiCardProps {
   label: string;
@@ -388,3 +389,4 @@ function MiniStat({
 }
 
 export { CATEGORY_COLORS };
+export default Dashboard;

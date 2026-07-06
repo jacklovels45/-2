@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Check, Truck, X, Save, RotateCcw } from "lucide-react";
 import { useStore } from "@/store";
@@ -6,17 +6,18 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Modal } from "@/components/ui/Modal";
 import { formatMoney, formatDate } from "@/utils/format";
+import { I18N, getEmoji } from "@/utils/i18n";
 import type { OrderStatus } from "@/types";
 
 const STATUS_MAP: Record<OrderStatus, { label: string; variant: "neutral" | "warning" | "info" | "success" | "danger" }> = {
-  draft: { label: "草稿", variant: "neutral" },
-  pending: { label: "待审核", variant: "warning" },
-  approved: { label: "已审核", variant: "info" },
-  received: { label: "已入库", variant: "success" },
-  cancelled: { label: "已取消", variant: "danger" },
+  draft: { label: I18N.status.draft, variant: "neutral" },
+  pending: { label: I18N.status.pending, variant: "warning" },
+  approved: { label: I18N.status.approved, variant: "info" },
+  received: { label: I18N.status.received, variant: "success" },
+  cancelled: { label: I18N.status.cancelled, variant: "danger" },
 };
 
-export default function PurchaseDetail() {
+const PurchaseDetail = memo(function PurchaseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const purchases = useStore((s) => s.purchases);
@@ -120,7 +121,7 @@ export default function PurchaseDetail() {
                       <tr key={it.productId} className="table-row-hover">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{product?.emoji || "📦"}</span>
+                            <span className="text-lg">{getEmoji(product?.emoji)}</span>
                             <div>
                               <p className="font-medium text-ink-800">{product?.name || "已删除"}</p>
                               <p className="text-[11px] text-ink-400">{product?.spec}</p>
@@ -154,7 +155,7 @@ export default function PurchaseDetail() {
               <div className="space-y-2">
                 {relatedMovements.map((m) => (
                   <div key={m.id} className="flex items-center gap-3 text-sm py-1.5">
-                    <span className="text-base">{products.find((p) => p.id === m.productId)?.emoji || "📦"}</span>
+                    <span className="text-base">{getEmoji(products.find((p) => p.id === m.productId)?.emoji)}</span>
                     <span className="flex-1 text-ink-700">{m.productName}</span>
                     <span className="text-xs text-ink-400">{formatDate(m.createdAt, true)}</span>
                     <Badge variant="success">+{m.quantity}</Badge>
@@ -242,7 +243,7 @@ export default function PurchaseDetail() {
               const product = products.find((p) => p.id === it.productId);
               return (
                 <div key={it.productId} className="flex items-center gap-3 p-3 rounded-lg bg-cream-50 border border-ink-100">
-                  <span className="text-lg">{product?.emoji}</span>
+                  <span className="text-lg">{getEmoji(product?.emoji)}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-ink-800 truncate">{product?.name}</p>
                     <p className="text-[11px] text-ink-400">订货 {it.quantity} 件 · 单价 ¥{formatMoney(it.costPrice)}</p>
@@ -282,4 +283,6 @@ export default function PurchaseDetail() {
       </Modal>
     </div>
   );
-}
+});
+
+export default PurchaseDetail;

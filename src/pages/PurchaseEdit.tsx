@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Save, Plus, Trash2, Search } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { formatMoney } from "@/utils/format";
+import { getEmoji } from "@/utils/i18n";
 import type { PurchaseItem } from "@/types";
 
-export default function PurchaseEdit() {
+const PurchaseEdit = memo(function PurchaseEdit() {
   const navigate = useNavigate();
   const suppliers = useStore((s) => s.suppliers);
   const products = useStore((s) => s.products);
@@ -126,7 +127,7 @@ export default function PurchaseEdit() {
                         <tr key={it.productId}>
                           <td className="px-2 py-2.5">
                             <div className="flex items-center gap-2">
-                              <span className="text-base">{product.emoji}</span>
+                              <span className="text-base">{getEmoji(product.emoji)}</span>
                               <div>
                                 <p className="font-medium text-ink-800 text-sm">{product.name}</p>
                                 <p className="text-[11px] text-ink-400">{product.spec} · 当前库存 {product.stock}</p>
@@ -232,7 +233,7 @@ export default function PurchaseEdit() {
                     disabled={added}
                     className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-cream-100 disabled:opacity-40 disabled:cursor-not-allowed text-left transition-colors"
                   >
-                    <span className="text-base">{p.emoji}</span>
+                    <span className="text-base">{getEmoji(p.emoji)}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-ink-700 truncate">{p.name}</p>
                       <p className="text-[10px] text-ink-400">进价 ¥{formatMoney(p.costPrice)} · 库存 {p.stock}</p>
@@ -265,4 +266,6 @@ export default function PurchaseEdit() {
       </div>
     </div>
   );
-}
+});
+
+export default PurchaseEdit;

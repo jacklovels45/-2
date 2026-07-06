@@ -1,9 +1,11 @@
+import { memo } from "react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge } from "@/components/ui/Badge";
 import { Leaf } from "lucide-react";
+import { getEmoji } from "@/utils/i18n";
 
-export default function Categories() {
+const Categories = memo(function Categories() {
   const categories = useStore((s) => s.categories);
   const products = useStore((s) => s.products);
 
@@ -26,7 +28,7 @@ export default function Categories() {
             <div key={c.id} className="surface-card surface-card-hover p-5">
               <div className="flex items-start justify-between">
                 <div className="w-12 h-12 rounded-xl2 bg-cream-100 flex items-center justify-center text-2xl">
-                  {c.icon}
+                  {getEmoji(c.icon)}
                 </div>
                 {lowCount > 0 && (
                   <Badge variant="warning">{lowCount} 款低库存</Badge>
@@ -55,4 +57,6 @@ export default function Categories() {
       </div>
     </div>
   );
-}
+});
+
+export default Categories;

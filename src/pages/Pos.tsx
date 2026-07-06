@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -20,13 +20,14 @@ import { Modal } from "@/components/ui/Modal";
 import { formatMoney } from "@/utils/format";
 import type { PaymentMethod, SaleItem } from "@/types";
 import { cn } from "@/utils/cn";
+import { I18N, getEmoji } from "@/utils/i18n";
 
 interface CartItem extends SaleItem {
   stock: number;
   emoji: string;
 }
 
-export default function Pos() {
+const Pos = memo(function Pos() {
   const navigate = useNavigate();
   const products = useStore((s) => s.products);
   const categories = useStore((s) => s.categories);
@@ -50,11 +51,11 @@ export default function Pos() {
     });
   }, [products, activeCat, keyword]);
 
-  const addToCart = (productId: string) => {
+  const addToCart = useCallback((productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (!product) return;
     if (product.stock <= 0) {
-      alert("该商品库存不足");
+      alert(I18N.outOfStock);
       return;
     }
     setCart((prev) => {
@@ -87,9 +88,9 @@ export default function Pos() {
         },
       ];
     });
-  };
+  }, [products]);
 
-  const updateQty = (productId: string, delta: number) => {
+  const updateQty = useCallback((productId: string, delta: number) => {
     setCart((prev) =>
       prev
         .map((it) => {
@@ -104,31 +105,31 @@ export default function Pos() {
         })
         .filter(Boolean) as CartItem[]
     );
-  };
+  }, []);
 
-  const removeItem = (productId: string) => {
+  const removeItem = useCallback((productId: string) => {
     setCart((prev) => prev.filter((it) => it.productId !== productId));
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCart([]);
     setDiscount(0);
-  };
+  }, []);
 
   const totalAmount = cart.reduce((s, it) => s + it.amount, 0);
   const finalAmount = Math.max(0, totalAmount - discount);
   const change = Math.max(0, paidAmount - finalAmount);
 
-  const openPay = () => {
+  const openPay = useCallback(() => {
     if (cart.length === 0) {
-      alert("购物车为空");
+      alert(I18N.emptyCart);
       return;
     }
     setPaidAmount(finalAmount);
     setPayOpen(true);
-  };
+  }, [cart.length, finalAmount]);
 
-  const handleConfirmPay = () => {
+  const handleConfirmPay = useCallback(() => {
     if (paymentMethod === "cash" && paidAmount < finalAmount) {
       alert("实收金额不足");
       return;
@@ -138,7 +139,7 @@ export default function Pos() {
     setPayOpen(false);
     setCart([]);
     setDiscount(0);
-  };
+  }, [cart, discount, paymentMethod, paidAmount, finalAmount, createSale]);
 
   return (
     <div className="animate-fade-up">
@@ -193,7 +194,7 @@ export default function Pos() {
                   )}
                 >
                   <div className="aspect-square rounded-lg bg-cream-100 flex items-center justify-center text-4xl mb-2">
-                    {p.emoji}
+                    {getEmoji(p.emoji)}
                   </div>
                   <p className="text-sm font-medium text-ink-800 truncate">{p.name}</p>
                   <p className="text-[11px] text-ink-400 truncate">{p.spec}</p>
@@ -243,14 +244,14 @@ export default function Pos() {
               {cart.length === 0 ? (
                 <div className="text-center py-12 text-ink-400">
                   <ShoppingCart size={32} className="mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">购物车空空如也</p>
-                  <p className="text-xs mt-1">从左侧选择商品开始结账</p>
+                  <p className="text-sm">{I18N.emptyCart}</p>
+                  <p className="text-xs mt-1">{I18N.emptyCartHint}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
                   {cart.map((it) => (
                     <div key={it.productId} className="flex items-center gap-2 p-2 rounded-lg bg-cream-50 border border-ink-100 animate-scale-in">
-                      <span className="text-xl">{it.emoji}</span>
+                      <span className="text-xl">{getEmoji(it.emoji)}</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-ink-800 truncate">{it.name}</p>
                         <p className="text-[11px] text-ink-400 tabular">¥{formatMoney(it.salePrice)} × {it.quantity}</p>
@@ -323,9 +324,9 @@ export default function Pos() {
         size="md"
         footer={
           <>
-            <button onClick={() => setPayOpen(false)} className="btn-ghost">取消</button>
+            <button onClick={() => setPayOpen(false)} className="btn-ghost">{I18N.cancel}</button>
             <button onClick={handleConfirmPay} className="btn-primary">
-              <Check size={15} /> 确认收款
+              <Check size={15} /> {I18N.confirmPay}
             </button>
           </>
         }
@@ -340,10 +341,10 @@ export default function Pos() {
           <div>
             <p className="text-xs text-ink-500 font-medium mb-2">支付方式</p>
             <div className="grid grid-cols-4 gap-2">
-              <PayMethodBtn active={paymentMethod === "wechat"} onClick={() => setPaymentMethod("wechat")} icon={<Smartphone size={18} />} label="微信" />
-              <PayMethodBtn active={paymentMethod === "alipay"} onClick={() => setPaymentMethod("alipay")} icon={<Smartphone size={18} />} label="支付宝" />
-              <PayMethodBtn active={paymentMethod === "card"} onClick={() => setPaymentMethod("card")} icon={<CreditCard size={18} />} label="银行卡" />
-              <PayMethodBtn active={paymentMethod === "cash"} onClick={() => setPaymentMethod("cash")} icon={<Banknote size={18} />} label="现金" />
+              <PayMethodBtn active={paymentMethod === "wechat"} onClick={() => setPaymentMethod("wechat")} icon={<Smartphone size={18} />} label={I18N.payment.wechat} />
+              <PayMethodBtn active={paymentMethod === "alipay"} onClick={() => setPaymentMethod("alipay")} icon={<Smartphone size={18} />} label={I18N.payment.alipay} />
+              <PayMethodBtn active={paymentMethod === "card"} onClick={() => setPaymentMethod("card")} icon={<CreditCard size={18} />} label={I18N.payment.card} />
+              <PayMethodBtn active={paymentMethod === "cash"} onClick={() => setPaymentMethod("cash")} icon={<Banknote size={18} />} label={I18N.payment.cash} />
             </div>
           </div>
 
@@ -391,7 +392,7 @@ export default function Pos() {
               onClick={() => { setLastOrderNo(null); }}
               className="btn-ghost"
             >
-              继续收银
+              {I18N.continueShopping}
             </button>
             <button
               onClick={() => {
@@ -401,7 +402,7 @@ export default function Pos() {
               }}
               className="btn-primary"
             >
-              查看单据
+              {I18N.viewOrder}
             </button>
           </>
         }
@@ -410,13 +411,15 @@ export default function Pos() {
           <div className="w-16 h-16 rounded-full bg-forest-100 flex items-center justify-center mx-auto mb-3">
             <Check size={32} className="text-forest-600" strokeWidth={2.5} />
           </div>
-          <h3 className="display text-xl font-semibold text-forest-800">收款成功</h3>
+          <h3 className="display text-xl font-semibold text-forest-800">{I18N.paySuccess}</h3>
           <p className="text-sm text-ink-500 mt-1">订单已生成，库存已扣减</p>
         </div>
       </Modal>
     </div>
   );
-}
+});
+
+export default Pos;
 
 function CatChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (

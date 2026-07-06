@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useStore } from "@/store";
 import { cn } from "@/utils/cn";
+import { I18N, getEmoji } from "@/utils/i18n";
 
 const navGroups = [
   {
@@ -62,8 +63,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <Leaf size={20} className="text-forest-900" strokeWidth={2.2} />
           </div>
           <div>
-            <h1 className="display text-lg font-bold text-cream-100 leading-tight">禾鲜超市</h1>
-            <p className="text-[10px] text-cream-100/50 tracking-widest uppercase">进销存管理系统</p>
+            <h1 className="display text-lg font-bold text-cream-100 leading-tight">{I18N.app.name}</h1>
+            <p className="text-[10px] text-cream-100/50 tracking-widest uppercase">{I18N.app.subtitle}</p>
           </div>
         </div>
       </div>
@@ -128,12 +129,12 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <div className="m-3 p-3 rounded-xl bg-forest-800/60 border border-forest-700/50">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-full bg-amber-400 text-forest-900 flex items-center justify-center font-bold text-sm shrink-0">
-            {currentUser.avatar}
+            {getEmoji(currentUser.avatar)}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-cream-100 font-medium truncate">{currentUser.name}</p>
             <p className="text-[10px] text-cream-100/50">
-              {roleLabel(currentUser.role)} · 在线
+              {I18N.roles[currentUser.role] || currentUser.role} · {I18N.online}
             </p>
           </div>
           <ChevronRight size={14} className="text-cream-100/40" />
@@ -142,9 +143,3 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
     </aside>
   );
 }
-
-function roleLabel(role: string) {
-  return { manager: "店长", purchaser: "采购员", cashier: "收银员", keeper: "库管员" }[role] || role;
-}
-
-export { Users };

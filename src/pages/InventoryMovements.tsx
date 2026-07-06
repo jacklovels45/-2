@@ -1,26 +1,27 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { Link } from "react-router-dom";
 import { Search, ArrowDown, ArrowUp, RefreshCw, ArrowLeftRight } from "lucide-react";
 import { useStore } from "@/store";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Badge, Empty } from "@/components/ui/Badge";
 import { formatMoney, formatDate, relativeTime, isSameDay, daysAgo } from "@/utils/format";
+import { I18N, getEmoji } from "@/utils/i18n";
 import type { MovementType, MovementRefType } from "@/types";
 
 const TYPE_LABEL: Record<MovementType, { label: string; variant: "success" | "danger" | "info" }> = {
-  in: { label: "入库", variant: "success" },
-  out: { label: "出库", variant: "danger" },
-  adjust: { label: "调整", variant: "info" },
+  in: { label: I18N.movement.in, variant: "success" },
+  out: { label: I18N.movement.out, variant: "danger" },
+  adjust: { label: I18N.movement.adjust, variant: "info" },
 };
 
 const REF_LABEL: Record<MovementRefType, string> = {
-  purchase: "采购入库",
-  sale: "销售出库",
-  return: "退货",
-  check: "盘点调整",
+  purchase: I18N.movement.purchase,
+  sale: I18N.movement.sale,
+  return: I18N.movement.return,
+  check: I18N.movement.check,
 };
 
-export default function InventoryMovements() {
+const InventoryMovements = memo(function InventoryMovements() {
   const movements = useStore((s) => s.movements);
   const products = useStore((s) => s.products);
 
@@ -150,7 +151,7 @@ export default function InventoryMovements() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-base">{product?.emoji || "📦"}</span>
+                          <span className="text-base">{getEmoji(product?.emoji)}</span>
                           <span className="text-ink-700 truncate">{m.productName}</span>
                         </div>
                       </td>
@@ -184,4 +185,6 @@ export default function InventoryMovements() {
       </div>
     </div>
   );
-}
+});
+
+export default InventoryMovements;
