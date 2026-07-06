@@ -135,6 +135,10 @@ const Pos = memo(function Pos() {
       return;
     }
     const id = createSale(cart, discount, paymentMethod, paymentMethod === "cash" ? paidAmount : finalAmount);
+    if (!id) {
+      alert("下单失败，请检查库存后重试");
+      return;
+    }
     setLastOrderNo(id);
     setPayOpen(false);
     setCart([]);
