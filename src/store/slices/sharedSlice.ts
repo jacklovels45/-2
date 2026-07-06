@@ -14,10 +14,22 @@ export interface SharedSlice {
   reseed: () => void;
 }
 
-let seqCounter = 100000;
+const SEQ_STORAGE_KEY = "hexian-pos-seq-counter";
+
+function loadSeqCounter(): number {
+  if (typeof window === "undefined") return 100000;
+  const stored = window.localStorage.getItem(SEQ_STORAGE_KEY);
+  const parsed = stored ? parseInt(stored, 10) : NaN;
+  return Number.isFinite(parsed) ? parsed : 100000;
+}
+
+let seqCounter = loadSeqCounter();
 
 export function genNo(prefix: string): string {
   seqCounter += 1;
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(SEQ_STORAGE_KEY, String(seqCounter));
+  }
   const d = new Date();
   const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
   return `${prefix}${ymd}${String(seqCounter).slice(-4)}`;

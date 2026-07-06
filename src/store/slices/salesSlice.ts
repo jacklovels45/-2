@@ -14,6 +14,20 @@ export const createSalesSlice: StateCreator<SalesSlice & SharedSlice & { product
   createSale: (items, discount, paymentMethod, paid) => {
     try {
       const state = get();
+
+      // Reject the sale outright if any item requests more than is in stock,
+      // rather than silently clamping stock to 0 and recording a sale that
+      // doesn't match what was actually taken off the shelf.
+      for (const it of items) {
+        const product = state.products.find((p) => p.id === it.productId);
+        if (!product || it.quantity > product.stock) {
+          console.error(
+            `[SalesSlice] createSale rejected: insufficient stock for ${it.productId}`
+          );
+          return "";
+        }
+      }
+
       const id = `SO_${Date.now()}`;
       const orderNo = genNo("SO");
       const totalAmount = +items.reduce((s, it) => s + it.amount, 0).toFixed(2);
@@ -25,7 +39,9 @@ export const createSalesSlice: StateCreator<SalesSlice & SharedSlice & { product
         items,
         totalAmount,
         discount,
-        paid: paid || totalAmount - discount,
+        // paid is a valid amount even when 0 (e.g. store credit / unpaid),
+        // so only fall back when it's genuinely not provided.
+        paid: paid != null ? paid : totalAmount - discount,
         paymentMethod,
         createdAt: new Date().toISOString(),
       };
