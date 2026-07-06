@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #F5F1E8;
+  --color-surface: #FFFFFF;
+  --color-ink: #1A1F1C;
+  --color-forest: #0F3D2E;
+  --color-amber: #D4A24C;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  line-height: 1.5;
+  font-weight: 400;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(212, 162, 76, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(15, 61, 46, 0.04) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Number font for stats */
+.tabular {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Display font for headings */
+.display {
+  font-family: "Fraunces", serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 61, 46, 0.18);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 61, 46, 0.35);
+}
+
+/* Selection */
+::selection {
+  background: rgba(212, 162, 76, 0.3);
+  color: #0F3D2E;
+}
+
+@layer components {
+  .surface-card {
+    @apply bg-white rounded-xl2 border border-ink-100 shadow-card;
+  }
+  .surface-card-hover {
+    @apply transition-all duration-300 hover:shadow-cardHover hover:-translate-y-0.5;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-forest-800 text-cream-100 font-medium text-sm transition-all hover:bg-forest-700 hover:shadow-cardHover active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-white text-forest-800 border border-forest-200 font-medium text-sm transition-all hover:bg-cream-100 hover:border-forest-300 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-ink-600 font-medium text-sm transition-all hover:bg-ink-100 hover:text-ink-800;
+  }
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-amber-400 text-forest-900 font-semibold text-sm transition-all hover:bg-amber-300 hover:shadow-gold active:scale-[0.98];
+  }
+  .input-field {
+    @apply w-full px-3 py-2 rounded-lg bg-white border border-ink-200 text-ink-800 text-sm transition-all placeholder:text-ink-300 focus:outline-none focus:border-forest-500 focus:ring-2 focus:ring-forest-100;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium;
+  }
+  .table-row-hover {
+    @apply transition-colors hover:bg-cream-100/60;
+  }
+}
+
+/* Decorative grain texture for hero sections */
+.grain {
+  position: relative;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Subtle dashed divider for sidebar */
+.divider-dashed {
+  background-image: linear-gradient(to right, currentColor 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+}
