@@ -63,8 +63,10 @@ export function useDashboardStats() {
     const last7Spark = last7Days.map((d) => d.value);
 
     // 热销Top10 (近30天)
+    const thirtyDaysAgo = daysAgo(29);
+    const last30DaysSales = sales.filter((o) => new Date(o.createdAt) >= thirtyDaysAgo);
     const productSalesMap = new Map<string, { qty: number; revenue: number; profit: number }>();
-    sales.forEach((o) => {
+    last30DaysSales.forEach((o) => {
       o.items.forEach((it) => {
         const cur = productSalesMap.get(it.productId) || { qty: 0, revenue: 0, profit: 0 };
         cur.qty += it.quantity;
